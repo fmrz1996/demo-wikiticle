@@ -9,7 +9,7 @@
           <img class="card-img-top" :src="article.image">
           <div class="card-body">
             <h5 class="card-title">{{ article.title }}</h5>
-            <p class="card-text">{{ article.body }}</p>
+            <p class="card-text">{{ article.body.split('.')[0] + '.' }}</p>
             <p class="card-text"><small class="text-muted">{{ article.created_at }}</small></p>
           </div>
         </div>
@@ -55,7 +55,7 @@
 </template>
 
 <script>
-  import { Form, HasError, AlertError } from 'vform'
+  import { Form, HasError, AlertError } from 'vform';
   Vue.component(HasError.name, HasError)
   Vue.component(AlertError.name, AlertError)
 
@@ -63,6 +63,7 @@
     data() {
       return {
         articles: {},
+        query: {},
         form: new Form({
           title: '',
           image: '',
@@ -75,13 +76,43 @@
         axios.get("api/article").then(({ data }) => (this.articles = data.data));
       },
       generateArticle(){
-        console.log(this.form);
+        axios.get("https://cors-anywhere.herokuapp.com/es.wikipedia.org/w/api.php?format=json&action=query&generator=random&grnnamespace=0&prop=extracts|pageimages&exchars=1000&pithumbsize=550", {
+            headers: {"X-Requested-With": "XMLHttpRequest"}
+          }).then(({ data }) => {
+            console.log(data);
+            for (var pageId in data.query.pages) {
+              if (data.query.pages.hasOwnProperty(pageId)) {
+                  this.form.title = data.query.pages[pageId].title;
+                  this.form.image = data.query.pages[pageId].thumbnail.source;
+                  this.form.body = this.stripTags(data.query.pages[pageId].extract);
+              }
+            }
+          });
       },
       createArticle(){
-        this.form.post("api/article").then(({ data }) => { console.log(data) });
+        this.$Progress.start();
+        this.form.post("api/article")
+          .then(({ data }) => {
+            this.loadArticles();
+            this.$Progress.finish();
+            this.dismissModal();
+            $("#createArticleModal .close").click();
+            toast.fire({
+              type: 'success',
+              title: '¡Artículo creado exitosamente!'
+            });
+          })
+          .catch(({ error }) => {
+            this.$Progress.fail();
+          });
       },
       dismissModal(){
         this.form.reset();
+      },
+      stripTags(html){
+        var tmp = document.createElement("DIV");
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || "";
       }
     },
     created() {
