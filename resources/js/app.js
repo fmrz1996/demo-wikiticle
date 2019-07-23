@@ -28,13 +28,14 @@ const toast = swal.mixin({
   toast: true,
   position: 'top-end',
   showConfirmButton: false,
-  timer: 3000
+  timer: 5000
 });
 
 window.toast = toast;
 
 let routes = [
   { path: '/articles', component: require('./components/Articles.vue').default },
+  { path: '/articles/:id', component: require('./components/FullArticle.vue').default },
   { path: '/users', component: require('./components/Users.vue').default }
 ];
 

@@ -47,7 +47,7 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
-        //
+        return Article::find($id);
     }
 
     /**
@@ -59,7 +59,13 @@ class ArticleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+      $this->validate($request, [
+        'title' => 'required|string|max:191',
+        'image' => 'required|string|max:191',
+        'body' => 'required'
+      ]);
+
+      return Article::where('id', $id)->update($request->all());
     }
 
     /**
@@ -70,6 +76,6 @@ class ArticleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return Article::where('id', $id)->delete();
     }
 }
