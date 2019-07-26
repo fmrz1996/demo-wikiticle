@@ -1,5 +1,5 @@
 <template>
-  <div class="jumbotron">
+  <div class="jumbotron animated fade-in">
     <h1 class="display-4">{{ article.title }}</h1>
     <p class="lead">{{ article.created_at }}</p>
     <hr class="my-4">
@@ -8,7 +8,7 @@
         <img class="card-img-top" :src="article.image">
       </div>
       <div class="col-md-8">
-        <p>{{ article.body }}</p>
+        <p class="text-justify">{{ article.body }}</p>
       </div>
     </div>
   </div>

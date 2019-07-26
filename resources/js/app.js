@@ -5,7 +5,7 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const optionsPB = {
-  color: '#bffaf3',
+  color: '#a6dc86',
   failedColor: '#874b4b',
   thickness: '5px',
   transition: {
@@ -32,6 +32,11 @@ const toast = swal.mixin({
 });
 
 window.toast = toast;
+
+import Paginate from 'vuejs-paginate'
+
+Vue.component('paginate', Paginate);
+Vue.component('app-loading', require('./components/shared/Loading.vue').default);
 
 let routes = [
   { path: '/articles', component: require('./components/Articles.vue').default },

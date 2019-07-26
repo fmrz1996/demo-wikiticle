@@ -1,6 +1,7 @@
 <template>
   <div class="row">
-    <div class="col-md-12">
+    <app-loading v-if="loading"></app-loading>
+    <div v-else class="col-md-12 animated fade-in">
       <button @click="createModal()" type="button" class="btn btn-outline-primary btn-sm mb-4">
         Crear artículo
       </button>
@@ -24,6 +25,19 @@
           </div>
         </div>
       </div>
+      <paginate class="mt-4"
+        :page-count="dataPage"
+        :click-handler="pageCallback"
+        :prev-text="'Anterior'"
+        :next-text="'Siguiente'"
+        :container-class="'pagination'"
+        :page-class="'page-item'"
+        :page-link-class="'page-link'"
+        :prev-class="'page-item'"
+        :next-class="'page-item'"
+        :prev-link-class="'page-link'"
+        :next-link-class="'page-link'">
+      </paginate>
     </div>
     <div class="modal fade" id="createArticleModal" tabindex="-1" role="dialog" aria-labelledby="createArticleModal" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -32,7 +46,9 @@
             <div class="modal-header">
               <h5 v-if="!editMode" class="modal-title">Nuevo artículo</h5>
               <h5 v-else class="modal-title">Editar artículo</h5>
-              <button v-if="!editMode" type="button" class="btn btn-outline-success btn-sm ml-auto" @click="generateArticle();">Generar artículo</button>
+              <button v-if="!editMode" type="button" class="btn btn-outline-success btn-sm ml-auto" :disabled="generating" @click="generateArticle();">
+                <i :class="{ 'fa-spin' : generating }" class="fa fa-refresh mr-1"></i>{{ msgGenerate }}
+              </button>
               <button type="button" class="close ml-0" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -40,12 +56,12 @@
             <div class="modal-body">
                 <div class="form-group">
                   <label for="title">Título</label>
-                  <input v-model="form.title" type="text" class="form-control" :class="{'is-invalid': form.errors.has('title')}" id="title" placeholder="Ingresa un título...">
+                  <input v-model="form.title" type="text" class="form-control" :class="{'is-invalid': form.errors.has('title')}" id="title" placeholder="Ingresa un título..." maxlength="191">
                   <has-error :form="form" field="title"></has-error>
                 </div>
                 <div class="form-group">
                   <label for="image">Imagen</label>
-                  <input v-model="form.image" type="text" class="form-control" :class="{'is-invalid': form.errors.has('image')}" id="image" placeholder="Ingresa una imagen...">
+                  <input v-model="form.image" type="text" class="form-control" :class="{'is-invalid': form.errors.has('image')}" id="image" placeholder="Ingresa una imagen..." maxlength="191">
                   <has-error :form="form" field="image"></has-error>
                 </div>
                 <div class="form-group">
@@ -95,7 +111,11 @@
       return {
         articles: {},
         dataId: null,
+        dataPage: 1,
         editMode: false,
+        loading: true,
+        msgGenerate: 'Generar artículo',
+        generating: false,
         query: {},
         form: new Form({
           id: '',
@@ -107,20 +127,33 @@
     },
     methods: {
       loadArticles(){
-        axios.get("api/article").then(({ data }) => (this.articles = data.data));
+        axios.get("api/article").then(({ data }) => {
+          this.dataPage = data.last_page;
+          this.articles = data.data;
+          this.loading = false;
+        });
       },
       generateArticle(){
+        this.generating = true;
+        this.msgGenerate = 'Generando...';
         axios.get("https://cors-anywhere.herokuapp.com/es.wikipedia.org/w/api.php?format=json&action=query&generator=random&grnnamespace=0&prop=extracts|pageimages&exchars=1000&pithumbsize=550", {
             headers: {"X-Requested-With": "XMLHttpRequest"}
           }).then(({ data }) => {
             console.log(data);
             for (var pageId in data.query.pages) {
-              if (data.query.pages.hasOwnProperty(pageId)) {
+              if (data.query.pages.hasOwnProperty(pageId) && data.query.pages[pageId].thumbnail.source) {
+                if (data.query.pages[pageId].title.length <= 191 && data.query.pages[pageId].thumbnail.source.length <= 191) {
                   this.form.title = data.query.pages[pageId].title;
                   this.form.image = data.query.pages[pageId].thumbnail.source;
                   this.form.body = this.stripTags(data.query.pages[pageId].extract);
+                  this.msgGenerate = 'Generar artículo';
+                  this.generating = false;
+                }
               }
             }
+          })
+          .catch(() => {
+            this.generateArticle();
           });
       },
       createModal(){
@@ -188,6 +221,9 @@
         var tmp = document.createElement("DIV");
         tmp.innerHTML = html;
         return tmp.textContent || tmp.innerText || "";
+      },
+      pageCallback(pageNum){
+        axios.get("/api/article?page=" + pageNum).then(({ data }) => (this.articles = data.data));
       }
     },
     created() {

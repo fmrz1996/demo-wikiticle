@@ -18,3 +18,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/{router_link?}', function () {
+    return view('home');
+})->where('router_link', '[\/\w\.-]*');
