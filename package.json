@@ -18,8 +18,11 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
+        "chart.js": "^2.8.0",
+        "moment": "^2.24.0",
         "sweetalert2": "^8.14.0",
         "vform": "^1.0.1",
+        "vue-chartjs": "^3.4.2",
         "vue-progressbar": "^0.7.5",
         "vue-router": "^3.0.7",
         "vuejs-paginate": "^2.1.0"

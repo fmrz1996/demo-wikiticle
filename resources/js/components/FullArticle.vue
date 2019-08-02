@@ -1,7 +1,7 @@
 <template>
   <div class="jumbotron animated fade-in">
     <h1 class="display-4">{{ article.title }}</h1>
-    <p class="lead">{{ article.created_at }}</p>
+    <p class="lead">{{ article.created_at | formatTime }} -<span class="pageviews ml-1 text-muted">{{ article.pageviews }} visitas este último mes</span></p>
     <hr class="my-4">
     <div class="row">
       <div class="col-md-4">
@@ -9,16 +9,26 @@
       </div>
       <div class="col-md-8">
         <p class="text-justify">{{ article.body }}</p>
+        <p class="mt-auto source-article"><span class="font-weight-bold">Fuente: </span><a :href="article.source" target="_blank">{{ article.source }}</a></p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import moment from 'moment';
+
   export default {
     data() {
       return {
         article: {}
+      }
+    },
+    filters: {
+      formatTime: (value) => {
+        if (value) {
+          return moment(String(value)).format('DD/MM/YYYY LT');
+        }
       }
     },
     created() {

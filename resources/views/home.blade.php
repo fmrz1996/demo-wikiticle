@@ -14,9 +14,9 @@
                 </router-link>
               </li>
               <li class="nav-item">
-                <router-link to="/users" class="nav-link">
-                  <i class="fa fa-user"></i>
-                   Usuarios
+                <router-link to="/stats" class="nav-link">
+                  <i class="fa fa-bar-chart"></i>
+                   Estadisticas
                 </router-link>
               </li>
             </ul>

@@ -21,10 +21,11 @@
               </h5>
             </router-link>
             <p class="card-text">{{ article.body.split('.')[0] + '.' }}</p>
-            <p class="card-text"><small class="text-muted">{{ article.created_at }}</small></p>
+            <p class="card-text"><small class="text-muted"><i class="fa fa-calendar-o mr-1"></i>{{ article.created_at | relativeTime | capitalize }} <span class="ml-1 mr-1">–</span> <i class="fa fa-eye mr-1"></i>{{ article.pageviews }} visitas</small></p>
           </div>
         </div>
       </div>
+      <span v-if="articles.length == 0">No hay articulos registrados, ¡empieza por uno ya!</span>
       <paginate class="mt-4"
         :page-count="dataPage"
         :click-handler="pageCallback"
@@ -103,8 +104,11 @@
 
 <script>
   import { Form, HasError, AlertError } from 'vform';
-  Vue.component(HasError.name, HasError)
-  Vue.component(AlertError.name, AlertError)
+  Vue.component(HasError.name, HasError);
+  Vue.component(AlertError.name, AlertError);
+
+  import moment from 'moment';
+  moment.locale('es');
 
   export default {
     data() {
@@ -116,13 +120,28 @@
         loading: true,
         msgGenerate: 'Generar artículo',
         generating: false,
+        sumViews : 0,
         query: {},
         form: new Form({
           id: '',
           title: '',
           image: '',
-          body: ''
+          body: '',
+          pageviews: '',
+          source: ''
         })
+      }
+    },
+    filters: {
+      capitalize: (value) => {
+        if (value) {
+          return value.charAt(0).toUpperCase() + value.slice(1);
+        }
+      },
+      relativeTime: (value) => {
+        if (value) {
+          return moment(String(value)).fromNow();
+        }
       }
     },
     methods: {
@@ -136,25 +155,30 @@
       generateArticle(){
         this.generating = true;
         this.msgGenerate = 'Generando...';
-        axios.get("https://cors-anywhere.herokuapp.com/es.wikipedia.org/w/api.php?format=json&action=query&generator=random&grnnamespace=0&prop=extracts|pageimages&exchars=1000&pithumbsize=550", {
+        axios.get("https://cors-anywhere.herokuapp.com/es.wikipedia.org/w/api.php?format=json&action=query&generator=random&grnnamespace=0&prop=extracts|pageimages|pageviews|extlinks&exchars=1000&pithumbsize=550", {
             headers: {"X-Requested-With": "XMLHttpRequest"}
           }).then(({ data }) => {
             console.log(data);
-            for (var pageId in data.query.pages) {
+            for (let pageId in data.query.pages) {
               if (data.query.pages.hasOwnProperty(pageId) && data.query.pages[pageId].thumbnail.source) {
-                if (data.query.pages[pageId].title.length <= 191 && data.query.pages[pageId].thumbnail.source.length <= 191) {
                   this.form.title = data.query.pages[pageId].title;
                   this.form.image = data.query.pages[pageId].thumbnail.source;
                   this.form.body = this.stripTags(data.query.pages[pageId].extract);
+                  for (let totalViews in data.query.pages[pageId].pageviews) {
+                    this.sumViews = this.sumViews + data.query.pages[pageId].pageviews[totalViews];
+                  }
+                  this.form.pageviews = this.sumViews;
+                  this.sumViews = 0;
+                  this.form.source = Object.values(data.query.pages[pageId].extlinks[0])[0];
                   this.msgGenerate = 'Generar artículo';
                   this.generating = false;
-                }
               }
             }
           })
           .catch(() => {
             this.generateArticle();
-          });
+          })
+          ;
       },
       createModal(){
         this.editMode = false,
@@ -218,7 +242,7 @@
         });
       },
       stripTags(html){
-        var tmp = document.createElement("DIV");
+        let tmp = document.createElement("DIV");
         tmp.innerHTML = html;
         return tmp.textContent || tmp.innerText || "";
       },

@@ -55,3 +55,12 @@ button:focus {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.pageviews,
+.source-article {
+  font-size: 0.8em;
+}
+
+.source-article {
+  word-wrap: break-word;
+}

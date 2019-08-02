@@ -18,6 +18,8 @@ class CreateArticlesTable extends Migration
             $table->string('title');
             $table->text('body');
             $table->string('image');
+            $table->integer('pageviews')->default(0);
+            $table->string('source');
             $table->timestamps();
         });
     }

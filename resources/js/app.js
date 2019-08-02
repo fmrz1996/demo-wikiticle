@@ -33,7 +33,7 @@ const toast = swal.mixin({
 
 window.toast = toast;
 
-import Paginate from 'vuejs-paginate'
+import Paginate from 'vuejs-paginate';
 
 Vue.component('paginate', Paginate);
 Vue.component('app-loading', require('./components/shared/Loading.vue').default);
@@ -41,7 +41,7 @@ Vue.component('app-loading', require('./components/shared/Loading.vue').default)
 let routes = [
   { path: '/articles', component: require('./components/Articles.vue').default },
   { path: '/articles/:id', component: require('./components/FullArticle.vue').default },
-  { path: '/users', component: require('./components/Users.vue').default }
+  { path: '/stats', component: require('./components/Stats.vue').default }
 ];
 
 const router = new VueRouter({
