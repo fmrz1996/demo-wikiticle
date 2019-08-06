@@ -50,4 +50,9 @@ class ArticleController extends Controller
     {
         return Article::where('id', $id)->delete();
     }
+
+    public function random()
+    {
+        return Article::inRandomOrder()->pluck('id')->first();
+    }
 }

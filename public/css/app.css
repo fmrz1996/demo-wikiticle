@@ -1,6 +1,9 @@
 body {
   background-color: #f8fafc;
   font-family: 'Assistant', sans-serif;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 button:focus {
@@ -63,4 +66,8 @@ button:focus {
 
 .source-article {
   word-wrap: break-word;
+}
+
+.fa-stat {
+  font-size: 0.9em!important;
 }

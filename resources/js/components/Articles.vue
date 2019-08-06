@@ -2,9 +2,27 @@
   <div class="row">
     <app-loading v-if="loading"></app-loading>
     <div v-else class="col-md-12 animated fade-in">
-      <button @click="createModal()" type="button" class="btn btn-outline-primary btn-sm mb-4">
+      <button @click="createModal()" type="button" class="btn btn-outline-success btn-sm mb-4 mr-2">
+        <i class="fa fa-plus mr-1"></i>
         Crear artículo
       </button>
+      <button v-if="articles.length !== 0" @click="randomArticle()" type="button" class="btn btn-outline-primary btn-sm mb-4">
+        <i class="fa fa-random mr-1"></i>
+        Artículo aleatorio
+      </button>
+      <paginate
+        :page-count="dataPage"
+        :click-handler="pageCallback"
+        :prev-text="'Anterior'"
+        :next-text="'Siguiente'"
+        :container-class="'pagination'"
+        :page-class="'page-item'"
+        :page-link-class="'page-link'"
+        :prev-class="'page-item'"
+        :next-class="'page-item'"
+        :prev-link-class="'page-link'"
+        :next-link-class="'page-link'">
+      </paginate>
       <div class="card-columns">
         <div class="card" v-for="article in articles">
           <img class="card-img-top" :src="article.image">
@@ -26,19 +44,6 @@
         </div>
       </div>
       <span v-if="articles.length == 0">No hay articulos registrados, ¡empieza por uno ya!</span>
-      <paginate class="mt-4"
-        :page-count="dataPage"
-        :click-handler="pageCallback"
-        :prev-text="'Anterior'"
-        :next-text="'Siguiente'"
-        :container-class="'pagination'"
-        :page-class="'page-item'"
-        :page-link-class="'page-link'"
-        :prev-class="'page-item'"
-        :next-class="'page-item'"
-        :prev-link-class="'page-link'"
-        :next-link-class="'page-link'">
-      </paginate>
     </div>
     <div class="modal fade" id="createArticleModal" tabindex="-1" role="dialog" aria-labelledby="createArticleModal" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -121,6 +126,7 @@
         msgGenerate: 'Generar artículo',
         generating: false,
         sumViews : 0,
+        randomArticleId: 0,
         query: {},
         form: new Form({
           id: '',
@@ -145,25 +151,24 @@
       }
     },
     methods: {
-      loadArticles(){
+      loadArticles() {
         axios.get("api/article").then(({ data }) => {
           this.dataPage = data.last_page;
           this.articles = data.data;
           this.loading = false;
         });
       },
-      generateArticle(){
+      generateArticle() {
         this.generating = true;
         this.msgGenerate = 'Generando...';
         axios.get("https://cors-anywhere.herokuapp.com/es.wikipedia.org/w/api.php?format=json&action=query&generator=random&grnnamespace=0&prop=extracts|pageimages|pageviews|extlinks&exchars=1000&pithumbsize=550", {
             headers: {"X-Requested-With": "XMLHttpRequest"}
           }).then(({ data }) => {
-            console.log(data);
             for (let pageId in data.query.pages) {
               if (data.query.pages.hasOwnProperty(pageId) && data.query.pages[pageId].thumbnail.source) {
                   this.form.title = data.query.pages[pageId].title;
                   this.form.image = data.query.pages[pageId].thumbnail.source;
-                  this.form.body = this.stripTags(data.query.pages[pageId].extract);
+                  this.form.body = this.stripTags(data.query.pages[pageId].extract).replace(/\[.*?\]/g, '');
                   for (let totalViews in data.query.pages[pageId].pageviews) {
                     this.sumViews = this.sumViews + data.query.pages[pageId].pageviews[totalViews];
                   }
@@ -180,23 +185,23 @@
           })
           ;
       },
-      createModal(){
+      createModal() {
         this.editMode = false,
         this.form.reset();
         $('#createArticleModal').modal('show');
       },
-      editModal(article){
+      editModal(article) {
         this.dataId = article.id;
         this.editMode = true,
         this.form.reset();
         $('#createArticleModal').modal('show');
         this.form.fill(article);
       },
-      deleteModal(id){
+      deleteModal(id) {
         this.dataId = id;
         $('#deleteArticleModal').modal('show');
       },
-      createArticle(){
+      createArticle() {
         this.$Progress.start();
         this.form.post("api/article").then(() => {
           this.loadArticles();
@@ -211,7 +216,7 @@
           this.$Progress.fail();
         });
       },
-      updateArticle(){
+      updateArticle() {
         this.$Progress.start();
         this.form.put("api/article/" + this.form.id).then(() => {
           this.loadArticles();
@@ -226,7 +231,7 @@
           this.$Progress.fail();
         });
       },
-      deleteArticle(){
+      deleteArticle() {
         this.$Progress.start();
         this.form.delete("api/article/" + this.dataId).then(() => {
           this.loadArticles();
@@ -241,8 +246,14 @@
           this.$Progress.fail();
         });
       },
-      stripTags(html){
-        let tmp = document.createElement("DIV");
+      randomArticle() {
+        axios.get("/api/random-article-id").then(({ data }) => {
+          this.randomArticleId = data;
+          this.$router.push("/articles/" + this.randomArticleId);
+        });
+      },
+      stripTags(html) {
+        let tmp = document.createElement("div");
         tmp.innerHTML = html;
         return tmp.textContent || tmp.innerText || "";
       },

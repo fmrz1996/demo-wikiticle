@@ -30,7 +30,8 @@
             yAxes: [{
               ticks: {
                 beginAtZero: true,
-                fontFamily: "Segoe UI"
+                fontFamily: "Segoe UI",
+                suggestedMax: 10
               }
             }],
             xAxes: [{

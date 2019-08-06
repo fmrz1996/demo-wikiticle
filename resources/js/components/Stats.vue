@@ -4,14 +4,14 @@
     <div v-else class="container recent-activity animated fade-in">
       <div class="row mb-4">
         <div class="col-12">
-          <h3>Actividad reciente</h3>
+          <h3><i class="fa fa-heart-o mr-2 fa-stat"></i>Actividad reciente</h3>
           <line-chart v-if="apiLoaded" :styles="styleChart"></line-chart>
         </div>
       </div>
       <hr>
       <div class="row mb-4">
         <div class="col-12">
-          <h3 class="mb-3">Artículos más populares</h3>
+          <h3 class="mb-3"><i class="fa fa-star-o mr-2 fa-stat"></i>Artículos más populares</h3>
           <table class="table table-hover">
             <thead class="thead-light">
               <tr>
@@ -38,7 +38,7 @@
       </div>
       <div class="row mb-4">
         <div class="col-md-6">
-          <h5 class="mb-3">Artículos más cortos</h5>
+          <h5 class="mb-3"><i class="fa fa-arrow-down mr-2 fa-stat"></i>Artículos más cortos</h5>
           <table class="table table-hover">
             <thead class="thead-light">
               <tr>
@@ -59,7 +59,7 @@
           </table>
         </div>
         <div class="col-md-6">
-          <h5 class="mb-3">Artículos más largos</h5>
+          <h5 class="mb-3"><i class="fa fa-arrow-up mr-2 fa-stat"></i>Artículos más largos</h5>
           <table class="table table-hover">
             <thead class="thead-light">
               <tr>

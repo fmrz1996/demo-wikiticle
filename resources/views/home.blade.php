@@ -16,7 +16,7 @@
               <li class="nav-item">
                 <router-link to="/stats" class="nav-link">
                   <i class="fa fa-bar-chart"></i>
-                   Estadisticas
+                   Estadísticas
                 </router-link>
               </li>
             </ul>
