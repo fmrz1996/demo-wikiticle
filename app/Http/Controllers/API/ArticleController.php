@@ -53,6 +53,6 @@ class ArticleController extends Controller
 
     public function random()
     {
-        return Article::inRandomOrder()->pluck('id')->first();
+      return Article::inRandomOrder()->pluck('id')->first();
     }
 }

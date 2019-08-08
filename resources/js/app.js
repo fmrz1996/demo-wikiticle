@@ -37,6 +37,7 @@ import Paginate from 'vuejs-paginate';
 
 Vue.component('paginate', Paginate);
 Vue.component('app-loading', require('./components/shared/Loading.vue').default);
+Vue.component('app-article-options', require('./components/shared/ArticleOptions.vue').default);
 
 let routes = [
   { path: '/articles', component: require('./components/Articles.vue').default },

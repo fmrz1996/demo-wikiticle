@@ -1,21 +1,29 @@
 <template>
-  <div class="jumbotron animated fade-in">
-    <div v-if="article.length !== 0">
-      <h1 class="display-4">{{ article.title }}</h1>
-      <p class="lead">{{ article.created_at | formatTime }} -<span class="pageviews ml-1 text-muted">{{ article.pageviews }} visitas en un mes</span></p>
-      <hr class="my-4">
-      <div class="row">
-        <div class="col-md-4">
-          <img class="card-img-top" :src="article.image">
+  <div class="row">
+    <div class="col-12">
+      <app-article-options :articles="totalArticles"></app-article-options>
+    </div>
+    <div class="col-12">
+      <app-loading v-if="loading"></app-loading>
+      <div v-else class="jumbotron animated fade-in">
+        <div v-if="article.length !== 0">
+          <h1 class="display-4">{{ article.title }}</h1>
+          <p class="lead">{{ article.created_at | formatTime }} -<span class="pageviews ml-1 text-muted">{{ article.pageviews }} visitas en un mes</span></p>
+          <hr class="my-4">
+          <div class="row">
+            <div class="col-md-4">
+              <img class="card-img-top" :src="article.image">
+            </div>
+            <div class="col-md-8">
+              <p class="text-justify">{{ article.body }}</p>
+              <p class="mt-auto source-article"><span class="font-weight-bold">Fuente: </span><a :href="article.source" target="_blank">{{ article.source }}</a></p>
+            </div>
+          </div>
         </div>
-        <div class="col-md-8">
-          <p class="text-justify">{{ article.body }}</p>
-          <p class="mt-auto source-article"><span class="font-weight-bold">Fuente: </span><a :href="article.source" target="_blank">{{ article.source }}</a></p>
+        <div v-else>
+          <p>Por desgracia, ¡no existe el artículo requerido!</p>
         </div>
       </div>
-    </div>
-    <div v-else>
-      <p>Por desgracia, ¡no existe el artículo requerido!</p>
     </div>
   </div>
 </template>
@@ -26,7 +34,9 @@
   export default {
     data() {
       return {
-        article: {}
+        article: {},
+        loading: true,
+        totalArticles: {}
       }
     },
     filters: {
@@ -36,8 +46,27 @@
         }
       }
     },
+    methods: {
+      loadFullArticle() {
+        axios.get("/api/article/" + this.$route.params.id).then(({ data }) => {
+          this.article = data;
+          this.loading = false;
+        });
+      },
+      loadArticles() {
+        axios.get("/api/article").then(({ data }) => {
+          this.totalArticles = data.data[0];
+        });
+      }
+    },
+    mounted() {
+      this.$root.$on('FullArticle', () => {
+        this.loadFullArticle();
+      });
+    },
     created() {
-      axios.get("/api/article/" + this.$route.params.id).then(({ data }) => (this.article = data));
+      this.loadFullArticle();
+      this.loadArticles();
     }
   }
 </script>
