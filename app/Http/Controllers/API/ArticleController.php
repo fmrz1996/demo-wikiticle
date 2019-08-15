@@ -32,7 +32,10 @@ class ArticleController extends Controller
 
     public function show($id)
     {
-        return Article::find($id);
+        $article = Article::find($id);
+        $article["prev_article"] = Article::where('id', '<', $id)->max('id');
+        $article["next_article"] = Article::where('id', '>', $id)->min('id');
+        return $article;
     }
 
     public function update(Request $request, $id)

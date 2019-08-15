@@ -1,9 +1,6 @@
 body {
   background-color: #f8fafc;
   font-family: 'Assistant', sans-serif;
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
 }
 
 button:focus {
@@ -70,4 +67,32 @@ button:focus {
 
 .fa-stat {
   font-size: 0.9em!important;
+}
+
+.article-controls a {
+  transition: 0.3s ease;
+  color: #ccc;
+  z-index: -10;
+}
+
+.article-controls a:hover {
+  color: #444;
+}
+.article-controls a {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  top: 0;
+  width: 84px;
+  height: 94%;
+  text-align: center;
+}
+
+.article-controls .prev-article {
+  left: -6%;
+}
+
+.article-controls .next-article {
+  right: -6%;
 }
