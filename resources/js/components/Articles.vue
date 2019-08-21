@@ -5,10 +5,10 @@
     </div>
     <div class="col-sm-6">
       <paginate v-if="!loading" class="float-right"
-        :page-count="dataPage"
+        :page-count="pageCount"
         :click-handler="pageCallback"
-        :prev-text="'Anterior'"
-        :next-text="'Siguiente'"
+        :prev-text="'<div id=prevPage>Anterior</div>'"
+        :next-text="'<div id=nextPage>Siguiente</div>'"
         :container-class="'pagination pagination-sm'"
         :page-class="'page-item'"
         :page-link-class="'page-link'"
@@ -38,6 +38,10 @@
             <p class="card-text">{{ article.body.split('.')[0] + '.' }}</p>
             <p class="card-text"><small class="text-muted"><i class="fa fa-calendar-o mr-1"></i>{{ article.created_at | relativeTime | capitalize }} <span class="ml-1 mr-1">–</span> <i class="fa fa-eye mr-1"></i>{{ article.pageviews }} visitas</small></p>
           </div>
+        </div>
+        <div class="page-controls">
+          <button v-if="pageData !== 1" @click="prevPageEvent" class="btn prev-page text-decoration-none"><i class="fa fa-angle-left fa-4x"></i></button>
+          <button v-if="pageData !== pageCount" @click="nextPageEvent"  class="btn next-page text-decoration-none"><i class="fa fa-angle-right fa-4x"></i></button>
         </div>
       </div>
       <span v-if="articles.length == 0">No hay articulos registrados, ¡empieza por uno ya!</span>
@@ -77,7 +81,8 @@
       return {
         articles: {},
         dataId: null,
-        dataPage: 1,
+        pageCount: 1,
+        pageData: 0,
         editMode: false,
         loading: true,
         form: new Form({
@@ -105,8 +110,9 @@
     methods: {
       loadArticles() {
         axios.get("/api/article").then(({ data }) => {
-          this.dataPage = data.last_page;
+          this.pageCount = data.last_page;
           this.articles = data.data;
+          this.pageData = data.current_page;
           this.loading = false;
         });
       },
@@ -133,7 +139,16 @@
         });
       },
       pageCallback(pageNum) {
-        axios.get("/api/article?page=" + pageNum).then(({ data }) => (this.articles = data.data));
+        axios.get("/api/article?page=" + pageNum).then(({ data }) => {
+          this.pageData = pageNum;
+          this.articles = data.data;
+        });
+      },
+      prevPageEvent() {
+        $("#prevPage").click();
+      },
+      nextPageEvent() {
+        $("#nextPage").click();
       }
     },
     mounted() {

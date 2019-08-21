@@ -69,15 +69,49 @@ button:focus {
   font-size: 0.9em!important;
 }
 
+.page-controls button,
 .article-controls a {
   transition: 0.3s ease;
   color: #ccc;
   z-index: -10;
 }
 
+.page-controls button:hover,
 .article-controls a:hover {
   color: #444;
 }
+
+.page-controls button {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  top: 60px;
+  width: 94px;
+  height: 88%;
+}
+
+.page-controls button:focus {
+  box-shadow: none;
+}
+
+.page-controls .prev-page {
+  left: 9%;
+}
+
+.page-controls .next-page {
+  right: 9%;
+}
+
+.page-controls i {
+  width: inherit;
+}
+
+.page-controls i.fa-angle-left,
+.page-controls i.fa-angle-right {
+  transform: translateX(-10%);
+}
+
 .article-controls a {
   position: absolute;
   display: flex;

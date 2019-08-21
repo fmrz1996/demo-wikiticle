@@ -62,7 +62,6 @@
       loadArticles() {
         axios.get("/api/article").then(({ data }) => {
           this.totalArticles = data.total;
-          console.log(data.total);
         });
       }
     },
